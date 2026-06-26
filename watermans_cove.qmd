@@ -1,0 +1,33 @@
+---
+title: "Living Seawalls @ Barangaroo"
+author: "Paule Mathieu"
+format: html
+editor: visual
+---
+
+## Living Seawalls Project
+
+### Introduction
+
+This project is part of the **Living Seawalls** project with the *Sydney Institute of Marine Science* (SIMS) and particularly aims to reduce the number of non-indigenous species (NIS) on panels through underwater gardening (hand removal) of two key ascidians NIS: *Botrylloides leachii* and *Styela plicata*, at Watermans Cove in Barangaroo, Sydney, NSW.
+
+### Loading packages
+
+```{r, echo=FALSE}
+#install.packages(c("tidyverse", "viridies"))
+
+library(tidyverse)
+library(viridis)
+```
+
+
+### Loading data
+
+Data was wrangled into a Script file. Source:
+```{r}
+
+```
+
+
+
+The `echo: false` option disables the printing of code (only output is displayed).
