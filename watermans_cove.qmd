@@ -23,11 +23,8 @@ library(viridis)
 
 ### Loading data
 
-Data was wrangled into a Script file. Source:
+Data was wrangled into a seperate Script file. Source:
 ```{r}
 
 ```
 
-
-
-The `echo: false` option disables the printing of code (only output is displayed).
