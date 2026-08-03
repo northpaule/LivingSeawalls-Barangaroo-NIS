@@ -40,7 +40,7 @@ bin-release/
 # Folders to ignore
 archive/
 output/
-
+data/
 
 # Keywords to ignore
 *archive
