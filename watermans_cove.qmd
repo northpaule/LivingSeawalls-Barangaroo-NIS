@@ -15,13 +15,13 @@ This project is part of the **Living Seawalls** project with the *Sydney Institu
 
 Data was wrangled into a separate Script file. Source:
 
-```{r, echo=FALSE}
+```{r, results='hide'}
 source("data_wrangling.R")
 ```
 
 ### Loading packages
 
-```{r, echo=FALSE}
+```{r, results='hide'}
 #install.packages(c("tidyverse", "viridis"))
 
 library(tidyverse)
@@ -46,10 +46,190 @@ library(ggpubr)
 
 ```
 
-#### Note 
+#### Note
 
 The dataset initially appeared to contain duplicated panel numbers, suggesting that panel identifiers were inconsistent. However, the field protocol clarified that panel numbers were intentionally repeated across the three deployment depths (Intertidal, 1.2 m and 3 m). For example, Panel 102 exists once at each depth, and is only found on the North side of Watermans, representing three separate physical settlement panels rather than repeated records of the same panel. Similarly, Panel 21 exists once at each depth and is only found on the SR platform of the South side. While we expected to have 3 repeats of each panel number (128 panels x 3 depth positions = 384 panels sampled) per sampling period (384 panels sampled x 4 sampling periods = 1536 panels sampled across depth), NIS were only removed from half the panels at each depth (1568/2 = 768 observations). As such, our slightly lower total observation count of 701 (represented by 198 individual panels) is likely caused by experimental challenges such as missed observations and lost panels.
 
 Therefore, this dataset represents only a subset of the original experiment and contains only the panels that were experimentally cleaned after each sampling event. Consequently, the unique experimental unit is not the panel number alone, but the combination of *Span*, *Depth*, and *Panel number*. A unique panel identifier (`Panel_ID`) was therefore created by combining these variables, allowing each physical panel to be tracked across repeated sampling periods while correctly accounting for repeated measurements in subsequent mixed-effects models.
 
-### Exploratory Data Analysis
+### Exploratory data analysis
+
+Styela
+
+```{r}
+# summary statistics: mean styela count per panel across sampling period
+nis %>%
+        group_by(Sampling_period) %>%
+                summarise(Mean = mean(Styela_actual, na.rm=TRUE),
+                          SD = sd(Styela_actual, na.rm=TRUE),
+                          Median = median(Styela_actual, na.rm=TRUE),
+                          N = n())
+
+# mean dry weight per panel across sampling periods
+nis %>%
+        group_by(Sampling_period) %>%
+                summarise(Mean = mean(Styela_dry_weight, na.rm=TRUE),
+                SD = sd(Styela_dry_weight, na.rm=TRUE))
+```
+
+Mean count per panel/sampling periods: (rounded amounts)
+
+- S1 = 9
+
+- S2 = 0.25
+
+- S3 = 3.25
+
+- S4 = 9.5
+
+Mean weight/biomass per panel/sampling periods: (rounded amounts)
+
+- S1 = 2.5
+
+- S2 = 0.25
+
+- S3 = 1
+
+- S4 = 9
+
+So there was considerably more Styela recorded during S1 and S4.
+
+Botrylloides
+
+```{r}
+ggplot(nis,aes(Sampling_period,
+        Botrylloides_front, colour = Depth)) +
+        geom_jitter(width=.15, height=.15, alpha=.6)
+```
+
+No apparent pattern detected, looks very mixed.
+
+### Objective 1: Recolonization through time
+
+Does NIS abundance change (increase/decrease) between successive sampling periods?
+
+```{r}
+# STYELA
+
+# average styela count/presence per sampling period across all panels
+ggplot(nis, aes(Sampling_period, Styela_actual)) +
+  geom_boxplot() + theme_classic()
+        # higher in S1 and S4
+
+# average styela abundance/biomass per sampling period across all panels
+ggplot(nis, aes(Sampling_period, Styela_dry_weight)) +
+  geom_boxplot() + theme_classic()
+        # higher biomass in S4, low biomass in S2-S3, mid biomass in S1
+
+```
+
+
+```{r}
+# BOTRYLLOIDES
+
+# size-class distribution across sampling periods
+ggplot(nis, aes(x = Sampling_period, fill = Botrylloides_front)) +
+  geom_bar() + theme_classic()
+
+```
+
+Main patterns observed:
+
+- S1 and S2: Most observations are in the 0 category, meaning Botrylloides was absent from many panels. However, some small-to-medium colonies (S–L) were present, indicating early colonization.
+
+- S3: The proportion of 0 observations decreases, while XS, S, M, L, and XL colonies become more common. This suggests increasing recruitment and colony growth over time.
+
+- S4: There is a strong shift towards larger colonies, particularly L and XL size classes, with fewer zero observations. This suggests that Botrylloides became more established and colonies had more time to grow.
+
+This suggests a progressive recolonization and development of Botrylloides populations over time:
+
+1.  Early sampling periods are dominated by absence and small colonies.
+2.  Later sampling periods show increased presence and larger colonies.
+3.  The shift from small to large size classes indicates colony growth and persistence after panel gardening
+
+
+
+### Objective 2: Assess how recolonization varies with depth
+Do deeper/shallower panels recolonize faster/more?
+
+```{r}
+# STYELA
+
+# plot depth differences across sampling periods
+ggplot(nis, aes(Depth, Styela_actual)) +
+  geom_boxplot() +
+  facet_wrap(~Sampling_period) + theme_classic()
+```
+
+```{r}
+# BOTRYLLOIDES
+
+# ***************************
+ggplot(nis, aes(Depth, Botrylloides_front)) +
+  geom_boxplot() + facet_wrap(~Sampling_period) + theme_classic()
+```
+
+
+### Objective 3: Determine which panel design supports higher NIS biomass
+Do some panel designs encourage more NIS growth?
+
+```{r}
+# STYELA
+
+# biomass per panel design
+ggplot(nis,
+       aes(x = Panel_front,
+           y = Styela_dry_weight)) +
+  geom_boxplot(outlier.shape = 16) +
+  coord_cartesian(ylim = c(0, 10)) +
+  theme_classic() +
+  labs(
+    x = "Panel design",
+    y = "Styela biomass (dry weight, g)"
+  )
+
+ggplot(nis,
+       aes(x = Panel_front,
+           y = Styela_dry_weight)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_jitter(width = 0.15,
+              alpha = 0.5) +
+  coord_cartesian(ylim = c(0, 10)) +
+  theme_classic()
+
+pairwise.wilcox.test(nis$Styela_dry_weight,
+                     nis$Panel_front,
+                     p.adjust.method="bonferroni")
+```
+```{r}
+# Calculate mean biomass and standard error
+biomass_summary <- nis %>%
+  group_by(Panel_front) %>%
+  summarise(
+    mean_biomass = mean(Styela_dry_weight, na.rm = TRUE),
+    sd_biomass = sd(Styela_dry_weight, na.rm = TRUE),
+    n = n(),
+    se_biomass = sd_biomass / sqrt(n)
+  )
+
+# View summary table
+biomass_summary
+
+
+# Create bar plot
+ggplot(biomass_summary,
+       aes(x = Panel_front,
+           y = mean_biomass)) +
+  geom_col() +
+  geom_errorbar(
+    aes(ymin = mean_biomass - se_biomass,
+        ymax = mean_biomass + se_biomass),
+    width = 0.2
+  ) +
+  theme_classic() +
+  labs(
+    x = "Panel design",
+    y = "Mean Styela dry weight (g ± SE)"
+  )
+```
+
