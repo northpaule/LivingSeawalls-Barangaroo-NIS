@@ -11,20 +11,45 @@ editor: visual
 
 This project is part of the **Living Seawalls** project with the *Sydney Institute of Marine Science* (SIMS) and particularly aims to reduce the number of non-indigenous species (NIS) on panels through underwater gardening (hand removal) of two key ascidians NIS: *Botrylloides leachii* and *Styela plicata*, at Watermans Cove in Barangaroo, Sydney, NSW.
 
+### Loading data
+
+Data was wrangled into a separate Script file. Source:
+
+```{r, echo=FALSE}
+source("data_wrangling.R")
+```
+
 ### Loading packages
 
 ```{r, echo=FALSE}
-#install.packages(c("tidyverse", "viridies"))
+#install.packages(c("tidyverse", "viridis"))
 
 library(tidyverse)
 library(viridis)
+
+#mixed-effects models
+library(lme4)
+library(lmerTest)
+
+#ordinal mixed models
+library(ordinal)
+
+#estimated marginal means
+library(emmeans)
+
+#model diagnostics
+library(performance)
+library(DHARMa)
+
+#publication-quality figures
+library(ggpubr)
+
 ```
 
+#### Note 
 
-### Loading data
+The dataset initially appeared to contain duplicated panel numbers, suggesting that panel identifiers were inconsistent. However, the field protocol clarified that panel numbers were intentionally repeated across the three deployment depths (Intertidal, 1.2 m and 3 m). For example, Panel 102 exists once at each depth, and is only found on the North side of Watermans, representing three separate physical settlement panels rather than repeated records of the same panel. Similarly, Panel 21 exists once at each depth and is only found on the SR platform of the South side. While we expected to have 3 repeats of each panel number (128 panels x 3 depth positions = 384 panels sampled) per sampling period (384 panels sampled x 4 sampling periods = 1536 panels sampled across depth), NIS were only removed from half the panels at each depth (1568/2 = 768 observations). As such, our slightly lower total observation count of 701 (represented by 198 individual panels) is likely caused by experimental challenges such as missed observations and lost panels.
 
-Data was wrangled into a seperate Script file. Source:
-```{r}
+Therefore, this dataset represents only a subset of the original experiment and contains only the panels that were experimentally cleaned after each sampling event. Consequently, the unique experimental unit is not the panel number alone, but the combination of *Span*, *Depth*, and *Panel number*. A unique panel identifier (`Panel_ID`) was therefore created by combining these variables, allowing each physical panel to be tracked across repeated sampling periods while correctly accounting for repeated measurements in subsequent mixed-effects models.
 
-```
-
+### Exploratory Data Analysis
