@@ -199,7 +199,7 @@ styela_depth <- glmmTMB(Styela_actual ~ Sampling_period *Depth + (1|Panel_ID), f
 summary(styela_depth)
 ```
 
-Unable to determine whether there is a significant depth effect on styela abundance count across sampling periods (p \> 0.05).
+Unable to determine whether there is a significant depth effect on styela abundance count across sampling periods (p > 0.05).
 
 ```{r}
 # BOTRYLLOIDES
