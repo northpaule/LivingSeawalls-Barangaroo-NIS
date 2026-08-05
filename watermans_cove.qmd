@@ -28,22 +28,28 @@ library(tidyverse)
 library(viridis)
 
 #mixed-effects models
-library(lme4)
-library(lmerTest)
-
-#ordinal mixed models
-library(ordinal)
+library(glmmTMB)
 
 #estimated marginal means
 library(emmeans)
 
 #model diagnostics
 library(performance)
-library(DHARMa)
 
 #publication-quality figures
 library(ggpubr)
 
+```
+
+```{r, results='hide'}
+# Create a standard plot theme to be used throughout the analysis
+theme_pub <- function(){
+  theme_classic(base_size = 15) +
+    theme(
+      axis.title = element_text(face="bold"),
+      axis.text = element_text(color="black"),
+      legend.position="right",
+      strip.text = element_text(face="bold"))}
 ```
 
 #### Note
@@ -111,25 +117,48 @@ Does NIS abundance change (increase/decrease) between successive sampling period
 ```{r}
 # STYELA
 
-# average styela count/presence per sampling period across all panels
-ggplot(nis, aes(Sampling_period, Styela_actual)) +
-  geom_boxplot() + theme_classic()
+# average styela count/presence per sampling period across all panels (test)
+#ggplot(nis, aes(Sampling_period, Styela_actual)) +
+  #geom_boxplot() + theme_pub()
         # higher in S1 and S4
 
-# average styela abundance/biomass per sampling period across all panels
-ggplot(nis, aes(Sampling_period, Styela_dry_weight)) +
-  geom_boxplot() + theme_classic()
+# styela abundance count through time (improved graph)
+ggplot(nis, aes(x = Sampling_period,
+           y = Styela_actual)) +
+        geom_boxplot(fill="#FFB6C1") +
+        #geom_jitter(width=0.15, size=2, alpha=0.6) +
+        labs(x="Sampling period", y="Styela abundance (ind. count)") +
+        theme_pub()
+
+# average styela abundance/biomass per sampling period across all panels **
+ggplot(nis, aes(x = Sampling_period, y = Styela_dry_weight)) +
+        geom_boxplot(fill="#FFB6C1") +
+        labs(x="Sampling period", y="Styela biomass (g)") +
+        theme_pub()
         # higher biomass in S4, low biomass in S2-S3, mid biomass in S1
 
 ```
 
+```{r}
+# does styela increase over time (across sampling periods) ?
+styela_time <- glmmTMB(Styela_actual ~ Sampling_period + (1|Panel_ID), family = nbinom2, data = nis)
+
+summary(styela_time)
+
+#emmeans(styela_time, pairwise ~ Sampling_period) testing a different kind of test, supports GLMM
+```
+
+Here, we look at linear, quadratic and cubic trends between mean Styela count (abundance) per panel across sampling periods, using a negative binomial GLMM. Styela abundance count increased significantly across sampling periods, but our model suggests that recolonization did not occur at a constant rate but rather in accelerated and varied bursts throughout the monitoring period (notably S1 and S4). Which is supported by our abundance plot.
+
+GLMM was chosen here because it can analyze count data that are overdispered (as it is the case with our data), meaning that the variance is significantly greater than the mean. As a result, it prevents the underestimated standard errors and false-positive results that can occur when using a standard Poisson model (due to excess data variability).
 
 ```{r}
 # BOTRYLLOIDES
 
 # size-class distribution across sampling periods
 ggplot(nis, aes(x = Sampling_period, fill = Botrylloides_front)) +
-  geom_bar() + theme_classic()
+  geom_bar() + theme_pub()
+        # very crowded plot, but we can still detect a few key points...
 
 ```
 
@@ -145,11 +174,10 @@ This suggests a progressive recolonization and development of Botrylloides popul
 
 1.  Early sampling periods are dominated by absence and small colonies.
 2.  Later sampling periods show increased presence and larger colonies.
-3.  The shift from small to large size classes indicates colony growth and persistence after panel gardening
-
-
+3.  The shift from small to large size classes indicates colony growth and persistence after panel gardening.
 
 ### Objective 2: Assess how recolonization varies with depth
+
 Do deeper/shallower panels recolonize faster/more?
 
 ```{r}
@@ -157,20 +185,32 @@ Do deeper/shallower panels recolonize faster/more?
 
 # plot depth differences across sampling periods
 ggplot(nis, aes(Depth, Styela_actual)) +
-  geom_boxplot() +
-  facet_wrap(~Sampling_period) + theme_classic()
+        geom_boxplot(fill="#FFB6C1") +
+        #geom_jitter(width=.1, alpha=.5) +
+        facet_wrap(~Sampling_period)+
+        labs(x = "Depth", y="Styela abundance") +
+        theme_pub()
 ```
+
+```{r}
+#  interaction between depth and sampling period
+styela_depth <- glmmTMB(Styela_actual ~ Sampling_period *Depth + (1|Panel_ID), family=nbinom2, data=nis)
+
+summary(styela_depth)
+```
+
+Unable to determine whether there is a significant depth effect on styela abundance count across sampling periods (p \> 0.05).
 
 ```{r}
 # BOTRYLLOIDES
 
-# ***************************
 ggplot(nis, aes(Depth, Botrylloides_front)) +
-  geom_boxplot() + facet_wrap(~Sampling_period) + theme_classic()
+  geom_boxplot() + facet_wrap(~Sampling_period) + theme_pub()
+        # mmh. doesn't look like much... I should try to transform the data before doing               further analysis.
 ```
 
-
 ### Objective 3: Determine which panel design supports higher NIS biomass
+
 Do some panel designs encourage more NIS growth?
 
 ```{r}
@@ -180,13 +220,10 @@ Do some panel designs encourage more NIS growth?
 ggplot(nis,
        aes(x = Panel_front,
            y = Styela_dry_weight)) +
-  geom_boxplot(outlier.shape = 16) +
+  geom_boxplot(fill = "#FFB6C1", outlier.shape = 16) +
   coord_cartesian(ylim = c(0, 10)) +
-  theme_classic() +
-  labs(
-    x = "Panel design",
-    y = "Styela biomass (dry weight, g)"
-  )
+  theme_pub() +
+  labs(x = "Panel design", y = "Styela biomass (g)")
 
 ggplot(nis,
        aes(x = Panel_front,
@@ -195,41 +232,32 @@ ggplot(nis,
   geom_jitter(width = 0.15,
               alpha = 0.5) +
   coord_cartesian(ylim = c(0, 10)) +
-  theme_classic()
+  theme_pub()
 
-pairwise.wilcox.test(nis$Styela_dry_weight,
-                     nis$Panel_front,
-                     p.adjust.method="bonferroni")
 ```
+
 ```{r}
 # Calculate mean biomass and standard error
-biomass_summary <- nis %>%
+styela_biomass <- nis %>%
   group_by(Panel_front) %>%
   summarise(
     mean_biomass = mean(Styela_dry_weight, na.rm = TRUE),
     sd_biomass = sd(Styela_dry_weight, na.rm = TRUE),
     n = n(),
-    se_biomass = sd_biomass / sqrt(n)
-  )
+    se_biomass = sd_biomass / sqrt(n))
 
-# View summary table
-biomass_summary
-
-
-# Create bar plot
-ggplot(biomass_summary,
+# create plot
+ggplot(styela_biomass,
        aes(x = Panel_front,
            y = mean_biomass)) +
   geom_col() +
   geom_errorbar(
     aes(ymin = mean_biomass - se_biomass,
-        ymax = mean_biomass + se_biomass),
-    width = 0.2
-  ) +
-  theme_classic() +
-  labs(
-    x = "Panel design",
-    y = "Mean Styela dry weight (g ± SE)"
-  )
+        ymax = mean_biomass + se_biomass),vwidth = 0.2) +
+  theme_pub() +
+  labs(x = "Panel design",y = "Mean Styela biomass (g ± SE)")
 ```
 
+#### Note
+
+I have taken the executive decision to focus solely on Styela for the sake of this assignment... Since time is limited, I want to focus on creating a meaningful analysis which can later be applied to Botrylloides. I will need to do further data wrangling to be able to use this qualitative data in statistical analyses.
