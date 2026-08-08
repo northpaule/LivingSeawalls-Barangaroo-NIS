@@ -1,0 +1,56 @@
+---
+title: "Analysis of *Styela plicata*"
+author: "Paule Mathieu"
+format: html
+editor: visual
+---
+
+## *Styela plicata*
+
+This document relates only to the S. plicata data.
+
+
+```{r, results='hide'}
+source("data_wrangling.R")
+```
+
+### Objective 1: Evaluate Styela recolonization across all sampling periods.
+
+```{r}
+# rearrange sampling periods accordingly
+styela$Sampling_period <- factor(styela$Sampling_period, levels = c("S1", "S2", "S3", "S4"))
+
+table(styela$Sampling_period)
+```
+
+```{r}
+# styela count, mean, se
+styela_count_summary <- styela %>%
+  group_by(Sampling_period) %>%
+  summarise(
+    mean_count = mean(styela_count, na.rm = TRUE),
+    sd_count = sd(styela_count, na.rm = TRUE),
+    n = sum(!is.na(styela_count)),
+    se_count = sd_count / sqrt(n))
+
+```
+
+```{r}
+# illustrate count data per sampling period
+ggplot(styela, aes(x = Sampling_period, y = styela_count)) +
+  #geom_boxplot(fill = "#FFB6C1", width = 0.6, outlier.shape = NA) + #testing options
+  #geom_jitter(width = 0.12, alpha = 0.35, size = 1.5) +
+  stat_summary(fun = mean, geom = "point", shape = 23, size = 5, fill = "#FFB6C1", colour = "black", stroke = 1) +
+  stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.15) +
+  labs(x = "Sampling period", y = "Styela abundance (nb of individuals)") +
+  theme_pub()
+```
+
+
+
+
+
+
+
+
+
