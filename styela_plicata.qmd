@@ -73,8 +73,30 @@ ggplot(styela, aes(x = Sampling_period, y = Styela_dry_weight)) +
 
 ### Objective 2: Assess how Styela recolonization varies with depth
 
+```{r}
+# styela abundance per depth across sampling periods
 
+ggplot(styela, aes(x = Depth, y = styela_count)) +
+  stat_summary(fun = mean, geom = "point", shape = 23, size = 3, fill = "#FFB6C1", colour = "black", stroke = 1) +
+  stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.15) +
+  facet_wrap(~Sampling_period) +
+  labs(x = "Depth", y = "Styela abundance (nb of individuals)") +
+  theme_pub() +
+        theme(strip.background = element_rect(fill = "grey90", colour = "black"))
+```
+```{r}
+# styela biomass per depth across sampling period
 
+ggplot(styela, aes(x = Depth, y = Styela_dry_weight)) +
+  stat_summary(fun = mean, geom = "point", shape = 23, size = 3, fill = "#FFB6C1", colour = "black", stroke = 1) +
+  stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.15) +
+  facet_wrap(~Sampling_period) +
+  labs(x = "Depth", y = "Styela dry biomass (g)") +
+  theme_pub() +
+        theme(strip.background = element_rect(fill = "grey90", colour = "black"))
+```
+
+### Objective 3: Identifying problematic panels
 
 
 
