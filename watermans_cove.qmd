@@ -253,7 +253,7 @@ ggplot(styela_biomass,
   geom_col() +
   geom_errorbar(
     aes(ymin = mean_biomass - se_biomass,
-        ymax = mean_biomass + se_biomass),vwidth = 0.2) +
+        ymax = mean_biomass + se_biomass), width = 0.2) +
   theme_pub() +
   labs(x = "Panel design",y = "Mean Styela biomass (g ± SE)")
 ```
