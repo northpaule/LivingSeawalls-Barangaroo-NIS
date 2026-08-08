@@ -98,6 +98,17 @@ ggplot(styela, aes(x = Depth, y = Styela_dry_weight)) +
 
 ### Objective 3: Identifying problematic panels
 
+```{r}
+ggplot(styela, aes(x = Panel_front, y = Styela_dry_weight)) +
+  geom_boxplot(fill = "#FFB6C1", width = 0.6, outlier.shape = NA) +
+  #geom_jitter(width = 0.12, alpha = 0.35, size = 1.5) +
+  stat_summary(fun = mean, geom = "point", shape = 18, size = 3) +
+  stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.15) +
+  labs(x = "Panel design", y = "Styela dry biomass (g)") +
+         coord_cartesian(ylim = c(0, 15)) +
+  theme_pub()
+```
+
 
 
 
