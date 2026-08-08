@@ -33,6 +33,11 @@ styela_count_summary <- styela %>%
     n = sum(!is.na(styela_count)),
     se_count = sd_count / sqrt(n))
 
+styela_count_model <- glmmTMB(
+  styela_count ~ Sampling_period + (1 | Panel_ID),
+  family = nbinom2,
+  data = styela)
+summary(styela_count_model)
 ```
 
 ```{r}
@@ -43,6 +48,26 @@ ggplot(styela, aes(x = Sampling_period, y = styela_count)) +
   stat_summary(fun = mean, geom = "point", shape = 23, size = 5, fill = "#FFB6C1", colour = "black", stroke = 1) +
   stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.15) +
   labs(x = "Sampling period", y = "Styela abundance (nb of individuals)") +
+  theme_pub()
+```
+
+```{r}
+# styela biomass, mean, se
+styela_biomass <- styela %>%
+  group_by(Sampling_period) %>%
+  summarise(
+    mean_biomass = mean(Styela_dry_weight, na.rm = TRUE),
+    sd_biomass = sd(Styela_dry_weight, na.rm = TRUE),
+    n = sum(!is.na(Styela_dry_weight)),
+    se_biomass = sd_biomass / sqrt(n))
+```
+
+```{r}
+# illustrate biomass data per sampling period
+ggplot(styela, aes(x = Sampling_period, y = Styela_dry_weight)) +
+  stat_summary(fun = mean, geom = "point", shape = 23, size = 5, fill = "#FFB6C1", colour = "black", stroke = 1) +
+  stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.15) +
+  labs(x = "Sampling period", y = "Styela dry biomass (g)") +
   theme_pub()
 ```
 
