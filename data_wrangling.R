@@ -55,4 +55,9 @@ nis <- nis %>%
 
 view(nis)
 
+# creating a styela subset
+
+styela <- nis %>%
+        select(Panel_ID, Panel_number, Depth, Panel_front, Sampling_period, Styela_actual, Styela_dry_weight) %>%
+        rename(styela_count = Styela_actual)
 
