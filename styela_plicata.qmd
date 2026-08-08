@@ -14,7 +14,7 @@ This document relates only to the S. plicata data.
 source("data_wrangling.R")
 ```
 
-### Objective 1: Evaluate Styela recolonization across all sampling periods.
+### Objective 1: Evaluate Styela recolonization across all sampling periods
 
 ```{r}
 # rearrange sampling periods accordingly
@@ -71,7 +71,7 @@ ggplot(styela, aes(x = Sampling_period, y = Styela_dry_weight)) +
   theme_pub()
 ```
 
-
+### Objective 2: Assess how Styela recolonization varies with depth
 
 
 
