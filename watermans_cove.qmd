@@ -15,15 +15,17 @@ This project is part of the **Living Seawalls** project with the *Sydney Institu
 
 Data was wrangled into a separate Script file. Source:
 
-```{r, results='hide'}
+```{r}
+#| output: false
 source("data_wrangling.R")
 ```
 
 ### Loading packages
 
-```{r, results='hide'}
+```{r}
+#| output: false
 #install.packages(c("tidyverse", "viridis"))
-
+library(dplyr)
 library(tidyverse)
 library(viridis)
 
@@ -41,7 +43,8 @@ library(ggpubr)
 
 ```
 
-```{r, results='hide'}
+```{r}
+#| output: false
 # Create a standard plot theme to be used throughout the analysis
 theme_pub <- function(){
   theme_classic(base_size = 15) +
@@ -199,7 +202,7 @@ styela_depth <- glmmTMB(Styela_actual ~ Sampling_period *Depth + (1|Panel_ID), f
 summary(styela_depth)
 ```
 
-Unable to determine whether there is a significant depth effect on styela abundance count across sampling periods (p > 0.05).
+Unable to determine whether there is a significant depth effect on styela abundance count across sampling periods (p \> 0.05).
 
 ```{r}
 # BOTRYLLOIDES
