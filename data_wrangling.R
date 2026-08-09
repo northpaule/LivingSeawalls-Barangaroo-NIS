@@ -1,6 +1,7 @@
 # Data wrangling for Living Seawalls @ Barangaroo
 
 # loading data
+library(dplyr)
 library(readxl)
 watermans <- read_excel("data/lsw_watermans.xlsx")
 
@@ -52,8 +53,6 @@ nis <- nis %>%
                         Depth,
                         Panel_number,
                         drop = TRUE))
-
-view(nis)
 
 # creating a styela subset
 
