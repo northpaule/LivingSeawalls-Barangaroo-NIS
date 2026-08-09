@@ -11,7 +11,20 @@ This document relates only to the S. plicata data.
 
 
 ```{r, results='hide'}
+#| output: false
 source("data_wrangling.R")
+```
+
+```{r}
+#| output: false
+# Create a standard plot theme to be used throughout the analysis
+theme_pub <- function(){
+  theme_classic(base_size = 15) +
+    theme(
+      axis.title = element_text(face="bold"),
+      axis.text = element_text(color="black"),
+      legend.position="right",
+      strip.text = element_text(face="bold"))}
 ```
 
 ### Objective 1: Evaluate Styela recolonization across all sampling periods
@@ -33,15 +46,16 @@ styela_count_summary <- styela %>%
     n = sum(!is.na(styela_count)),
     se_count = sd_count / sqrt(n))
 
-styela_count_model <- glmmTMB(
-  styela_count ~ Sampling_period + (1 | Panel_ID),
-  family = nbinom2,
-  data = styela)
-summary(styela_count_model)
+#styela_count_model <- glmmTMB(
+  #styela_count ~ Sampling_period + (1 | Panel_ID),
+  #family = nbinom2,
+  #data = styela)
+#summary(styela_count_model)
 ```
 
 ```{r}
 # illustrate count data per sampling period
+library(ggplot2)
 ggplot(styela, aes(x = Sampling_period, y = styela_count)) +
   #geom_boxplot(fill = "#FFB6C1", width = 0.6, outlier.shape = NA) + #testing options
   #geom_jitter(width = 0.12, alpha = 0.35, size = 1.5) +
