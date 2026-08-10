@@ -3,6 +3,7 @@
 # loading data
 library(dplyr)
 library(readxl)
+library(ggplot2)
 watermans <- read_excel("data/lsw_watermans.xlsx")
 
 # removing columns to ignore
