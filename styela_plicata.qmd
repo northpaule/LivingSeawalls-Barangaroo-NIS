@@ -9,7 +9,6 @@ editor: visual
 
 This document relates only to the S. plicata data.
 
-
 ```{r, results='hide'}
 #| output: false
 source("data_wrangling.R")
@@ -98,6 +97,7 @@ ggplot(styela, aes(x = Depth, y = styela_count)) +
   theme_pub() +
         theme(strip.background = element_rect(fill = "grey90", colour = "black"))
 ```
+
 ```{r}
 # styela biomass per depth across sampling period
 
@@ -114,16 +114,13 @@ ggplot(styela, aes(x = Depth, y = Styela_dry_weight)) +
 
 ```{r}
 ggplot(styela, aes(x = Panel_front, y = Styela_dry_weight)) +
-  #geom_boxplot(fill = "#FFB6C1", width = 0.6, outlier.shape = NA) +
-  #geom_jitter(width = 0.12, alpha = 0.35, size = 1.5) +
-   stat_summary(fun = mean, geom = "line", aes(group = 1), linewidth = 0.8) +
-        stat_summary(fun = mean, geom = "point", shape = 23, size = 3, fill = "#FFB6C1", colour = "black", stroke = 1) +
-  stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.15) +
+  #geom_boxplot(fill = "#FFB6C1", width = 0.6, outlier.shape = NA) + #test
+  #geom_jitter(width = 0.12, alpha = 0.35, size = 1.5) + #test
+   stat_summary(fun = mean, geom = "line", #calculate mean + connect
+                aes(group = 1), linewidth = 0.8) +
+   stat_summary(fun = mean, geom = "point", shape = 23, size = 3, fill = "#FFB6C1", colour = "black", stroke = 1) + 
+  stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.15) + #calculate error bars
   labs(x = "Panel design", y = "Styela dry biomass (g)") +
-        coord_cartesian(ylim = c(0, 10)) +
+        coord_cartesian(ylim = c(0, 10)) + #set range
   theme_pub()
 ```
-
-
-
-
